@@ -9,7 +9,7 @@ export default function DetailPage() {
   useEffect(() => {
     // Lấy state truyền từ trang Search (nếu có) thông qua react-router (ZMP UI)
     const passedState = window.history.state?.usr?.item;
-    
+
     if (passedState) {
       setData({
         ...passedState
@@ -30,6 +30,7 @@ export default function DetailPage() {
     if (!vt1) return null;
 
     const subPositions = [
+      { key: 'vt1', label: 'Vị trí 1' },
       { key: 'vt2', label: 'Vị trí 2' },
       { key: 'vt3', label: 'Vị trí 3' },
       { key: 'vt4', label: 'Vị trí 4' },
@@ -44,11 +45,7 @@ export default function DetailPage() {
         <Box className={`flex justify-between items-center ${validSubPositions.length > 0 ? 'border-b border-blue-200 pb-3 mb-3' : ''}`}>
           <Box className="flex-1 pr-2">
             <Text className="text-sm text-blue-800 font-bold uppercase tracking-wider">{title}</Text>
-            <Text className="text-xs text-blue-600 mt-0.5">Vị trí 1 (Mặt tiền)</Text>
           </Box>
-          <Text className="text-xl font-extrabold text-blue-700 shrink-0 whitespace-nowrap">
-            {parseFloat(vt1.replace(',', '.')).toLocaleString('vi-VN', { maximumFractionDigits: 2 })} tr/m²
-          </Text>
         </Box>
         {validSubPositions.length > 0 && (
           <Box className="space-y-2.5">
@@ -58,7 +55,7 @@ export default function DetailPage() {
                 <Box key={pos.key} className="flex justify-between items-center pl-2">
                   <Text className="text-sm text-gray-600 flex-1 pr-2">{pos.label}</Text>
                   <Text className="text-sm font-bold text-gray-800 shrink-0 whitespace-nowrap">
-                    {parseFloat(val.replace(',', '.')).toLocaleString('vi-VN', { maximumFractionDigits: 2 })} tr/m²
+                    {val}
                   </Text>
                 </Box>
               );
@@ -80,21 +77,25 @@ export default function DetailPage() {
         ) : (
           <Box className="bg-white rounded-2xl shadow-sm p-5 space-y-4">
             <Box>
-              <Text className="text-xs text-gray-400 uppercase tracking-wider mb-1">Tên đường</Text>
+              <Text className="text-[10px] text-blue-800 font-bold uppercase tracking-wider mb-1"> Tên ĐVHC</Text>
+              <Text className="text-[10px] text-gray-500">{data.phuong_chinh_xac || data.dvhc || data.ten_dvhc}</Text>
+            </Box>
+            <Box>
+              <Text className="text-[10px] text-blue-800 font-bold uppercase tracking-wider mb-1">Tên đường</Text>
               <Text className="font-bold text-xl text-[#1A1A1A]">{data.street || data.ten_duong}</Text>
             </Box>
             <Box>
-              <Text className="text-xs text-gray-400 uppercase tracking-wider mb-1">Đoạn đường</Text>
-              <Text className="text-lg text-gray-800">{data.segment || data.doan_duong}</Text>
+              <Text className="text-[10px] text-blue-800 font-bold uppercase tracking-wider mb-1">Đoạn đường</Text>
+              <Text className="font-bold text-xl text-gray-800">{data.segment || data.doan_duong}</Text>
             </Box>
             <Box>
-              <Text className="text-xs text-gray-400 uppercase tracking-wider mb-1">Đơn vị hành chính</Text>
-              <Text className="text-base font-medium text-gray-700">{data.phuong_chinh_xac || data.dvhc || data.ten_dvhc}</Text>
+              <Text className="text-[10px] text-blue-800 font-bold uppercase tracking-wider mb-1">Đơn vị tính</Text>
+              <Text className="text-sm text-gray-800">1.000 đồng/m²</Text>
             </Box>
             <Box>
-              {renderPriceGroup("Giá Đất Ở", "gia_dat_o")}
-              {renderPriceGroup("Thương mại Dịch vụ", "gia_dat_tmdv")}
-              {renderPriceGroup("Sản xuất Phi Nông nghiệp", "gia_dat_co_so_san_xuat_phi_nong_nghiep")}
+              {renderPriceGroup("Giá đất ở", "gia_dat_o")}
+              {renderPriceGroup("Giá đất thương mại dịch vụ", "gia_dat_tmdv")}
+              {renderPriceGroup("Giá đất sản xuất phi nông nghiệp", "gia_dat_co_so_san_xuat_phi_nong_nghiep")}
             </Box>
           </Box>
         )}

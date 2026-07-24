@@ -28,9 +28,9 @@ app.listen(PORT, async () => {
   // Tự động tải dữ liệu một lần khi khởi động Server
   await syncData();
 
-  // Đặt lịch tự động tải lại dữ liệu sau mỗi 24 giờ (86400000 ms)
+  // Đặt lịch tự động tải lại dữ liệu sau mỗi 5 phút (300000 ms)
   setInterval(async () => {
     console.log('[Cron] Đang tự động cập nhật dữ liệu định kỳ...');
     await syncData();
-  }, 24 * 60 * 60 * 1000);
+  }, 5 * 60 * 1000);
 });

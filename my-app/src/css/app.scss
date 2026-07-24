@@ -12,3 +12,22 @@
 .zaui-list-item {
   cursor: pointer;
 }
+
+/* Ẩn scrollbar */
+::-webkit-scrollbar {
+  display: none;
+}
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Override zmp-ui Input background */
+.zaui-input,
+.zaui-input-wrapper,
+.zaui-input-group,
+.zaui-input-control,
+.zaui-input-clear-btn {
+  background-color: transparent !important;
+  background: transparent !important;
+}
