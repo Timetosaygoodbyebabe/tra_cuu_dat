@@ -128,9 +128,16 @@ router.get('/', async (req: Request, res: Response) => {
     // BÂY GIỜ MỚI LỌC THEO TÊN PHƯỜNG DỰA TRÊN phuong_moi_da_nang
     if (filterDvhc) {
       mappedRecords = mappedRecords.filter(item => {
-        // Dữ liệu gốc ten_dvhc bị gộp mảng 12 phường nên phải dùng phuong_moi_da_nang để lọc
-        const itemExactWard = (item.phuong_moi_da_nang || item.ten_dvhc || '').toLowerCase();
-        return itemExactWard.includes(filterDvhc);
+        const exactWard = item.phuong_moi_da_nang;
+        if (exactWard && exactWard !== "Đang cập nhật") {
+          const normalizedExactWard = exactWard.toLowerCase();
+          return normalizedExactWard === filterDvhc;
+        } else {
+          // Dữ liệu gốc ten_dvhc
+          const itemDvhc = (item.ten_dvhc || '').toLowerCase();
+          const wardsList = itemDvhc.split(',').map((w: string) => w.trim());
+          return wardsList.includes(filterDvhc) || itemDvhc.includes(filterDvhc);
+        }
       });
     }
 

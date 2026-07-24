@@ -148,8 +148,15 @@ export default function SearchPage() {
 
           if (filterDvhc) {
             const exactWard = getExactWard(item);
-            const itemExactWard = removeAccents((exactWard !== "Đang cập nhật" ? exactWard : item.ten_dvhc || '').toLowerCase());
-            if (!itemExactWard.includes(filterDvhc)) match = false;
+            if (exactWard !== "Đang cập nhật") {
+              const normalizedExactWard = removeAccents(exactWard.toLowerCase());
+              if (normalizedExactWard !== filterDvhc) match = false;
+            } else {
+              const itemDvhc = removeAccents((item.ten_dvhc || '').toLowerCase());
+              // Nếu data gốc có nhiều phường, cắt ra để so sánh chính xác tuyệt đối
+              const wardsList = itemDvhc.split(',').map((w: string) => w.trim());
+              if (!wardsList.includes(filterDvhc) && !itemDvhc.includes(filterDvhc)) match = false;
+            }
           }
 
           return match;
