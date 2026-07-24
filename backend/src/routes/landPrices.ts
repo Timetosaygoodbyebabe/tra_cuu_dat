@@ -97,11 +97,6 @@ router.get('/', async (req: Request, res: Response) => {
     let filteredRecords = records.filter(item => {
       let match = true;
       
-      if (filterDvhc) {
-        const itemDvhc = (item.ten_dvhc || '').toLowerCase();
-        if (!itemDvhc.includes(filterDvhc)) match = false;
-      }
-      
       if (filterStreet) {
         const itemStreet = (item.ten_duong || '').toLowerCase();
         if (!itemStreet.includes(filterStreet)) match = false;
@@ -115,12 +110,6 @@ router.get('/', async (req: Request, res: Response) => {
       return match;
     });
 
-    // Phân trang
-    const numLimit = parseInt(limit as string, 10) || 10;
-    const numOffset = parseInt(offset as string, 10) || 0;
-    
-    const paginatedRecords = filteredRecords.slice(numOffset, numOffset + numLimit);
-
     // Đọc cache wardCache.json để map chính xác Phường
     const cachePath = path.join(__dirname, '../data/wardCache.json');
     let cache: Record<string, string> = {};
@@ -130,16 +119,31 @@ router.get('/', async (req: Request, res: Response) => {
       } catch (e) {}
     }
 
-    // Mapping kết quả để có thêm trường phuong_moi_da_nang từ cache hoặc mapping
-    const finalRecords = paginatedRecords.map((item: any) => ({
+    // Mapping kết quả để có thêm trường phuong_moi_da_nang
+    let mappedRecords = filteredRecords.map((item: any) => ({
         ...item,
-        phuong_moi_da_nang: getExactWard(item, cache) // Gọi hàm xử lý ở trên
+        phuong_moi_da_nang: getExactWard(item, cache)
     }));
+
+    // BÂY GIỜ MỚI LỌC THEO TÊN PHƯỜNG DỰA TRÊN phuong_moi_da_nang
+    if (filterDvhc) {
+      mappedRecords = mappedRecords.filter(item => {
+        // Dữ liệu gốc ten_dvhc bị gộp mảng 12 phường nên phải dùng phuong_moi_da_nang để lọc
+        const itemExactWard = (item.phuong_moi_da_nang || item.ten_dvhc || '').toLowerCase();
+        return itemExactWard.includes(filterDvhc);
+      });
+    }
+
+    // Phân trang
+    const numLimit = parseInt(limit as string, 10) || 10;
+    const numOffset = parseInt(offset as string, 10) || 0;
+    
+    const finalRecords = mappedRecords.slice(numOffset, numOffset + numLimit);
 
     // Trả kết quả về cho Frontend Zalo Mini App
     res.json({
       data: finalRecords,
-      total: filteredRecords.length
+      total: mappedRecords.length
     });
 
   } catch (error: any) {
