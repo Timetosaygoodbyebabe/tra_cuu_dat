@@ -42,11 +42,13 @@ export default function SearchPage() {
       const response = await fetch(url);
       const json = await response.json();
 
+      let responseData = json.data || [];
+
       if (isLoadMore) {
-        setResults(prev => [...prev, ...(json.data || [])]);
+        setResults(prev => [...prev, ...responseData]);
       } else {
-        setResults(json.data || []);
-        (window as any).totalRecords = json.total || 0;
+        setResults(responseData);
+        (window as any).totalRecords = responseData.length < (json.total || 0) ? json.total : responseData.length;
       }
     } catch (error) {
       console.error("Lỗi Fetch Backend:", error);

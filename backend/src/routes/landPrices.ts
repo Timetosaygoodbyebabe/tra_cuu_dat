@@ -125,19 +125,30 @@ router.get('/', async (req: Request, res: Response) => {
       phuong_moi_da_nang: getExactWard(item, cache)
     }));
 
-    // BÂY GIỜ MỚI LỌC THEO TÊN PHƯỜNG DỰA TRÊN phuong_moi_da_nang
+    // BÂY GIỜ MỚI LỌC THEO TÊN PHƯỜNG DỰA TRÊN phuong_moi_da_nang VÀ doan_duong
     if (filterDvhc) {
+      const wardKeyword = filterDvhc.replace(/phường|xã|quận/ig, '').trim().toLowerCase(); 
+      const otherWards = ["hải châu", "hòa cường", "thanh khê", "an khê", "an hải", "sơn trà", "ngũ hành sơn", "hòa khánh", "liên chiểu", "hải vân", "cẩm lệ", "hòa xuân"].filter(w => w !== wardKeyword);
+
       mappedRecords = mappedRecords.filter(item => {
+        const itemSegment = (item.doan_duong || '').toLowerCase();
+        
+        // 1. Phân tích doan_duong (segment) trước tiên
+        if (itemSegment.includes('phường') || itemSegment.includes('xã')) {
+            if (itemSegment.includes(wardKeyword)) return true;
+            if (otherWards.some(w => itemSegment.includes(w))) return false;
+        }
+
+        // 2. Fallback sang exactWard (từ wardCache)
         const exactWard = item.phuong_moi_da_nang;
         if (exactWard && exactWard !== "Đang cập nhật") {
-          const normalizedExactWard = exactWard.toLowerCase();
-          return normalizedExactWard === filterDvhc;
-        } else {
-          // Dữ liệu gốc ten_dvhc
-          const itemDvhc = (item.ten_dvhc || '').toLowerCase();
-          const wardsList = itemDvhc.split(',').map((w: string) => w.trim());
-          return wardsList.includes(filterDvhc) || itemDvhc.includes(filterDvhc);
+          return exactWard.toLowerCase() === filterDvhc || exactWard.toLowerCase().includes(wardKeyword);
         }
+        
+        // 3. Fallback gốc ten_dvhc
+        const itemDvhc = (item.ten_dvhc || '').toLowerCase();
+        const wardsList = itemDvhc.split(',').map((w: string) => w.trim());
+        return wardsList.includes(filterDvhc) || itemDvhc.includes(wardKeyword);
       });
     }
 
