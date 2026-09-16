@@ -7,3 +7,4 @@ my-app/.env
 **/obj/
 backend-dotnet/publish/
 *.zip
+!LandPriceApi_Publish_IOC1022.zip
