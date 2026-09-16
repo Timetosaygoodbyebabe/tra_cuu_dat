@@ -38,17 +38,25 @@ export default function SearchPage() {
       const offset = isLoadMore ? results.length : 0;
       const limit = 100;
 
-      const url = `https://tracuugiadat.1022.vn/api/land-prices?dvhc=${encodeURIComponent(dvhc)}&street=${encodeURIComponent(street)}&segment=${encodeURIComponent(segment)}&limit=${limit}&offset=${offset}`;
+      const apiBase = import.meta.env.VITE_API_URL || "https://tracuugiadat.1022.vn/api/land-prices";
+      const url = `${apiBase}?street=${encodeURIComponent(street)}&segment=${encodeURIComponent(segment)}&limit=${limit}&offset=${offset}`;
       const response = await fetch(url);
       const json = await response.json();
 
       let responseData = json.data || [];
+      if (dvhc) {
+        const lowerSearchDvhc = dvhc.toLowerCase().trim();
+        responseData = responseData.filter((item: any) => {
+          if (!item.ten_dvhc) return true;
+          return item.ten_dvhc.toLowerCase().includes(lowerSearchDvhc);
+        });
+      }
 
       if (isLoadMore) {
         setResults(prev => [...prev, ...responseData]);
       } else {
         setResults(responseData);
-        (window as any).totalRecords = responseData.length < (json.total || 0) ? json.total : responseData.length;
+        (window as any).totalRecords = responseData.length < (json.data?.length || 0) ? responseData.length : (json.total || 0);
       }
     } catch (error) {
       console.error("Lỗi Fetch Backend:", error);
@@ -107,7 +115,7 @@ export default function SearchPage() {
               <Box
                 key={item.id || index}
                 className="bg-white p-4 rounded-xl shadow-sm active:bg-gray-50 cursor-pointer"
-                onClick={() => navigate(`/detail?id=${item.id}`, { state: { item } })}
+                onClick={() => navigate(`/detail?id=${item.id || index}`, { state: { item } })}
               >
                 <Text className="font-bold text-lg text-[#1A1A1A] mb-1">{item.ten_duong || item.street}</Text>
                 <Text className="text-sm text-gray-500 mb-2">{item.doan_duong || item.segment}</Text>

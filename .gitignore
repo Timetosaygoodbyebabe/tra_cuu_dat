@@ -1,0 +1,9 @@
+# Environment files
+.env
+my-app/.env
+
+# .NET build & publish artifacts
+**/bin/
+**/obj/
+backend-dotnet/publish/
+*.zip
